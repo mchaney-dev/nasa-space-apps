@@ -4,7 +4,7 @@
 			"id": "mola_hrsc",
 			"name": "MOLA + HRSC Color Hillshade",
 			"type": "raster",
-			"source": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MOLA_blend200ppx_HRSC_ClrShade_clon0dd_200mpp_lzw/1.0.0/default/default028mm/{z}/{x}/{y}.png",
+			"source": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MOLA_blend200ppx_HRSC_ClrShade_clon0dd_200mpp_lzw/1.0.0/default/default028mm/{z}/{y}/{x}.png",
 			"description": "A dataset combining MOLA elevation data with HRSC color imagery for Mars.",
 			"bbox": [-90, -180, 90, 180],
 			"maxNativeZoom": 5
@@ -13,7 +13,7 @@
 			"id": "moc_color",
 			"name": "MOC Global Color Mosaic",
 			"type": "raster",
-			"source": "https://trek.nasa.gov/tiles/Mars/EQ/msss_atlas_simp_clon/1.0.0/default/default028mm/{z}/{x}/{y}.png",
+			"source": "https://trek.nasa.gov/tiles/Mars/EQ/msss_atlas_simp_clon/1.0.0/default/default028mm/{z}/{y}/{x}.png",
 			"description": "A global color mosaic of Mars created from MOC imagery.",
 			"bbox": [-90, -180, 90, 180],
       		"maxNativeZoom": 4

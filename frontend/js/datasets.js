@@ -56,7 +56,7 @@ export function createTileLayer(datasetId) {
         [ds.bbox[2], ds.bbox[3]]
     ];
     layer.on('add', () => {
-        map.setMaxBounds(bounds);
+        map.bounds = bounds;
     });
 
     return layer;
