@@ -1,21 +1,14 @@
-from typing import Optional
+from pydantic import BaseModel, Field
 
 """
-Base class for datasets.
+Base class for datasets loaded from manifest.json.
 """
-class BaseDataset:
-    def __init__(self, id: str, name: str, type: str, source: str, description: Optional[str] = None):
-        self.id = id
-        self.name = name
-        self.type = type
-        self.source = source
-        self.description = description
+class BaseDataset(BaseModel):
+    dataset_id: str = Field(alias="id")
+    name: str
+    dataset_type: str = Field(alias="type")
+    source: str | None = None
+    description: str | None = None
 
     def to_dict(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "type": self.type,
-            "source": self.source,
-            "description": self.description
-        }
+        return self.model_dump()
