@@ -1,1 +1,17 @@
-# datasets route
+from fastapi import APIRouter, HTTPException
+from core.loader import loader
+
+router = APIRouter(prefix="/datasets", tags=["Datasets"])
+
+# get all datasets
+@router.get("/")
+def get_datasets():
+    return [ds.to_dict() for ds in loader.get_all()]
+
+# get dataset by id
+@router.get("/{dataset_id}")
+def get_dataset(dataset_id: str):
+    dataset = loader.get(dataset_id)
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    return dataset.to_dict()
