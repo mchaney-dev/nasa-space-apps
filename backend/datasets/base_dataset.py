@@ -11,4 +11,4 @@ class BaseDataset(BaseModel):
     description: str | None = None
 
     def to_dict(self):
-        return self.model_dump()
+        return self.model_dump(by_alias=True)

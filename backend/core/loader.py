@@ -1,6 +1,6 @@
 from typing import Dict
-from core.config import get_manifest
-from datasets.base_dataset import BaseDataset
+from backend.core.config import get_manifest
+from backend.datasets.base_dataset import BaseDataset
 
 """
 Dynamically loads datasets from manifest.json and provides access by ID.

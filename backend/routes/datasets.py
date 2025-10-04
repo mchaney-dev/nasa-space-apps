@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from core.loader import loader
+from backend.core.loader import loader
 
 router = APIRouter(prefix="/datasets", tags=["Datasets"])
 

@@ -6,8 +6,8 @@ from fastapi.responses import StreamingResponse
 from pathlib import Path
 from datetime import timedelta
 from typing import Optional, cast
-from core.loader import loader
-from core.utils import logging
+from backend.core.loader import loader
+from backend.core.utils import logging
 
 router = APIRouter(prefix="/tiles", tags=["Tiles"])
 

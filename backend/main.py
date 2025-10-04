@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import datasets, labels, tiles
+from backend.routes import datasets, labels, tiles
 
 app = FastAPI(title="NASA Space Apps 2025", version="0.1.0")
 
