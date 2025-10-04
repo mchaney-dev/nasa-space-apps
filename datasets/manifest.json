@@ -1,3 +1,11 @@
 {
-	"name": "manifest"
+	"datasets": [
+		{
+			"id": "example_dataset",
+			"name": "Example Dataset",
+			"type": "example_type",
+			"source": "example_source",
+			"description": "This is an example dataset for demonstration purposes."
+		}
+	]
 }
