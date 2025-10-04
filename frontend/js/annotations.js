@@ -1,33 +1,27 @@
 // annotations
 
-import { datasets } from './datasets.js';
-import { currentDataset } from './app.js';
-
+// frontend/js/annotations.js
 export const annotations = {};
-// initialize blank annotation lists
-Object.keys(datasets).forEach(key => annotations[key] = []);
 
-// Click-to-add marker
-export function setupAnnotation(map) {
-  map.on("click", e => {
-    const label = prompt("Enter label:");
-    if (!label) return;
+export async function loadAnnotations(datasetId) {
+    try {
+        const res = await fetch(`http://127.0.0.1:8000/labels/?dataset_id=${datasetId}`);
+        const data = await res.json();
 
-    const marker = L.marker(e.latlng).bindPopup(label).addTo(map);
-    annotations[currentDataset].push(marker);
-  });
+        annotations[datasetId] = data.map(item =>
+            L.marker([item.lat, item.lng]).bindPopup(item.label)
+        );
+        return annotations[datasetId];
+    } catch (err) {
+        console.error(`Failed to load labels for ${datasetId}:`, err);
+        annotations[datasetId] = [];
+        return [];
+    }
 }
 
-// save with REST
-//export async function saveAnnotations(datasetKey) {
-//  const data = annotations[datasetKey].map(marker => ({
-//    lat: marker.getLatLng().lat,
-//    lng: marker.getLatLng().lng,
-//    label: marker.getPopup().getContent()
-//  }));
-//  await fetch(`/api/labels/${datasetKey}`, {
-//    method: "POST",
-//    headers: { "Content-Type": "application/json" },
-//    body: JSON.stringify(data)
-//  });
-//}
+export function addAnnotation(datasetId, lat, lng, label) {
+    if (!annotations[datasetId]) annotations[datasetId] = [];
+    const marker = L.marker([lat, lng]).bindPopup(label);
+    annotations[datasetId].push(marker);
+    return marker;
+}
