@@ -17,15 +17,18 @@ async function init() {
 }
 
 function initMap() {
-    map = L.map("map").setView([0, 0], 2);
+    map = L.map("map", {
+        crs: L.CRS.EPSG4326,
+        minZoom: 0,
+        maxZoom: 7,
+        center: [0, 0],
+        zoom: 0
+    });
 
-    // get first dataset id
     const datasetIds = Object.keys(datasets);
     if (datasetIds.length === 0) return;
 
     const firstDatasetId = datasetIds[0];
-
-    // switch to first dataset
     switchDataset(firstDatasetId);
 }
 

@@ -5,7 +5,7 @@ export const annotations = {};
 
 export async function loadAnnotations(datasetId) {
     try {
-        const res = await fetch(`http://127.0.0.1:8000/labels/?dataset_id=${datasetId}`);
+        const res = await fetch(`/labels/?dataset_id=${datasetId}`);
         const data = await res.json();
 
         annotations[datasetId] = data.map(item =>

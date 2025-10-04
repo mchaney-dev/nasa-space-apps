@@ -46,6 +46,7 @@ async def get_tile(dataset_id: str, z: int, x: int, y: int):
     """
     Retrieve a map tile from a compatible data source.
     Tiles are cached locally for faster repeat access.
+    Acts as a CORS proxy so frontend can load tiles.
     """
     dataset = loader.get(dataset_id)
     if not dataset:
@@ -61,9 +62,13 @@ async def get_tile(dataset_id: str, z: int, x: int, y: int):
     if tile_bytes is None:
         raise HTTPException(status_code=404, detail="Tile not found")
 
-    # return png tile with cache age of 1 day
     return Response(
         content=tile_bytes,
         media_type="image/png",
-        headers={"Cache-Control": "max-age=86400"}
+        headers={
+            "Cache-Control": "max-age=86400",
+            "Access-Control-Allow-Origin": "*",
+            "Vary": "Origin",
+            "Cross-Origin-Resource-Policy": "cross-origin"
+        }
     )

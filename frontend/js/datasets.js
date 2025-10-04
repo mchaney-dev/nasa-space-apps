@@ -4,8 +4,20 @@ export const datasets = {};
 
 export async function loadDatasets() {
     try {
-        const res = await fetch("http://127.0.0.1:8000/datasets/");
+        const res = await fetch("/datasets/");
+        
+        // check HTTP status
+        if (!res.ok) {
+            console.error("Failed to fetch datasets: HTTP", res.status, await res.text());
+            return {};
+        }
+
         const data = await res.json();
+
+        if (!data || !Array.isArray(data)) {
+            console.error("Datasets response is not an array:", data);
+            return {};
+        }
 
         data.forEach(ds => {
             datasets[ds.dataset_id] = {
@@ -24,15 +36,16 @@ export async function loadDatasets() {
     }
 }
 
-
 export function createTileLayer(datasetId) {
     const ds = datasets[datasetId];
     if (!ds) return null;
 
-    // Leaflet replaces {z}, {x}, {y} automatically
     return L.tileLayer(ds.tileUrlTemplate, {
         attribution: ds.attribution,
-        maxZoom: 12,
-        tileSize: 256
+        minZoom: 0,
+        maxZoom: 7,
+        tileSize: 256,
+        tms: false,
+        crossOriginIsolated: true
     });
 }
