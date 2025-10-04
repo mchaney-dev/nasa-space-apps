@@ -1,5 +1,4 @@
 // imports
-
 import { datasets, loadDatasets, createTileLayer } from "./datasets.js";
 import { annotations, loadAnnotations } from "./annotations.js";
 
@@ -7,19 +6,36 @@ let map;
 let currentLayer = null;
 
 async function init() {
+    // load datasets from backend
     await loadDatasets();
+
+    // initialize selector
     setupSelector();
+
+    // initialize the map
     initMap();
 }
 
 function initMap() {
     map = L.map("map").setView([0, 0], 2);
-    const firstDataset = Object.keys(datasets)[0];
-    switchDataset(firstDataset);
+
+    // get first dataset id
+    const datasetIds = Object.keys(datasets);
+    if (datasetIds.length === 0) return;
+
+    const firstDatasetId = datasetIds[0];
+
+    // switch to first dataset
+    switchDataset(firstDatasetId);
 }
 
 function setupSelector() {
     const select = document.getElementById("dataset-selector");
+
+    // clear existing options (if any)
+    select.innerHTML = "";
+
+    // add option for each dataset
     Object.values(datasets).forEach(ds => {
         const opt = document.createElement("option");
         opt.value = ds.id;
@@ -27,101 +43,39 @@ function setupSelector() {
         select.appendChild(opt);
     });
 
+    // listen for changes
     select.addEventListener("change", e => switchDataset(e.target.value));
 }
 
 async function switchDataset(datasetId) {
+    if (!map || !datasets[datasetId]) return;
+
+    // remove old layer
     if (currentLayer) map.removeLayer(currentLayer);
+
+    // create new tile layer using template URL
     const newLayer = createTileLayer(datasetId);
     if (!newLayer) return;
 
     currentLayer = newLayer.addTo(map);
 
+    // load annotations for this dataset
     const labels = await loadAnnotations(datasetId);
     labels.forEach(m => m.addTo(map));
 
+    // update info panel
     updateInfoPanel(datasetId);
 }
 
 function updateInfoPanel(datasetId) {
     const info = document.getElementById("info-panel");
     const ds = datasets[datasetId];
+    if (!ds) return;
+
     info.innerHTML = `
         <h3>${ds.name}</h3>
-        <p>${ds.attribution}</p>
+        <p>${ds.attribution || ds.description || ""}</p>
     `;
 }
 
 init();
-
-
-
-////import { datasets } from './datasets.js';
-//import { annotations, setupAnnotation } from './annotations.js';
-
-//// helper functions
-
-//function updateInfoPanel() {
-//    document.getElementById("info-panel").innerHTML =
-//        `Dataset: ${datasets[currentDataset].displayName} | Zoom: ${map.getZoom()}`;
-//}
-
-//// Minimal Leaflet map
-//const map = L.map('map', {
-//    center: [0, 0], // Equator / Prime Meridian
-//    zoom: 2,
-//    minZoom: 0,
-//    maxZoom: 9
-//});
-
-
-//const datasetSelector = document.getElementById("dataset-selector");
-
-//// Dynamically populate the selector
-//Object.keys(datasets).forEach(key => {
-//    const option = document.createElement("option");
-//    option.value = key;
-//    option.text = datasets[key].displayName;
-//    datasetSelector.appendChild(option);
-//});
-
-//// Initial dataset
-//export let currentDataset = Object.keys(datasets)[0];
-//let currentLayer = datasets[currentDataset].layer.addTo(map);
-//datasetSelector.value = currentDataset;
-
-//// Optional overlay layer opacity slider skeleton
-//// // ok currently this is also blocked by opaque-response
-////const overlayLayer = L.tileLayer.wms("https://planetarymaps.usgs.gov/cgi-bin/mapserv", {
-////    layers: "THEMIS_IR",
-////    format: "image/png",
-////    version: "1.3.0",
-////    crs: L.CRS.EPSG4326,
-////    opacity: 1
-////}).addTo(map);
-
-//// Listeners
-
-//document.getElementById("opacity-slider").addEventListener("input", e => {
-//    overlayLayer.setOpacity(e.target.value);
-//});
-
-//document.getElementById("dataset-selector").addEventListener("change", e => {
-//    // Remove current tile layer
-//    map.removeLayer(currentLayer);
-//    // Remove current dataset markers
-//    annotations[currentDataset].forEach(marker => map.removeLayer(marker));
-
-//    // Switch dataset
-//    currentDataset = e.target.value;
-//    currentLayer = datasets[currentDataset].layer.addTo(map);
-
-//    // Add markers for the new dataset
-//    annotations[currentDataset].forEach(marker => marker.addTo(map));
-//    // Update info panel
-//    updateInfoPanel();
-//});
-
-//map.on("zoomend", () => {
-//    updateInfoPanel();
-//});
