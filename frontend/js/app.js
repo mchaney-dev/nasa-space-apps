@@ -9,12 +9,11 @@ const map = L.map('map', {
 });
 
 // Simple dataset tile layer (Mars MOLA example)
-const marsMola = L.tileLayer(
-  'https://planetarymaps.usgs.gov/cgi-bin/mapserv?map=/maps/Mars/Mars_MGS_MOLA_ClrShade_global_463m.map&service=WMTS&request=GetTile&version=1.0.0&layer=Mars_MGS_MOLA_ClrShade_global_463m&tilematrixset=GoogleMapsCompatible_Level9&tilematrix={z}&tilerow={y}&tilecol={x}&format=image/jpeg',
-  {
-      attribution: "USGS Astrogeology Science Center",
-      tileSize: 256,
-      minZoom: 0,
-      maxZoom: 9
-  }
-).addTo(map);
+const marsWMS = L.tileLayer.wms("https://planetarymaps.usgs.gov/cgi-bin/mapserv", {
+    layers: "MDIM21",
+    format: "image/png",
+    transparent: false,
+    version: "1.3.0",
+    attribution: "USGS Astrogeology Science Center",
+    crs: L.CRS.EPSG4326
+}).addTo(map);
