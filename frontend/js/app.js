@@ -1,5 +1,7 @@
-// app
+// imports
 
+import { datasets } from './datasets.js';
+import { annotations, setupAnnotation } from './annotations.js';
 
 // helper functions
 
@@ -18,40 +20,6 @@ const map = L.map('map', {
 
 const datasetSelector = document.getElementById("dataset-selector");
 
-const datasets = {
-    "mars-mola": {
-        layer: L.tileLayer.wms("https://planetarymaps.usgs.gov/cgi-bin/mapserv", {
-            layers: "MDIM21",
-            format: "image/png",
-            version: "1.3.0",
-            crs: L.CRS.EPSG4326,
-            attribution: "USGS Astrogeology Science Center"
-        }),
-        displayName: "Mars MOLA"
-    },
-    "earth-modis": {
-        layer: L.tileLayer.wms("https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi", {
-            layers: "MODIS_Terra_CorrectedReflectance_TrueColor",
-            format: "image/png",
-            version: "1.3.0",
-            crs: L.CRS.EPSG4326,
-            attribution: "NASA EarthData"
-        }),
-        displayName: "Earth MODIS"
-    }
-    //, // commented because this one isnt cors compatible fsr
-    //"moon-lroc": {
-    //    layer: L.tileLayer.wms("https://planetarymaps.usgs.gov/cgi-bin/mapserv", {
-    //        layers: "LROC_WAC",
-    //        format: "image/png",
-    //        version: "1.3.0",
-    //        crs: L.CRS.EPSG4326,
-    //        attribution: "USGS Lunar Reconnaissance Orbiter"
-    //    }),
-    //    displayName: "Moon LROC"
-    //}
-};
-
 // Dynamically populate the selector
 Object.keys(datasets).forEach(key => {
     const option = document.createElement("option");
@@ -61,15 +29,9 @@ Object.keys(datasets).forEach(key => {
 });
 
 // Initial dataset
-let currentDataset = Object.keys(datasets)[0];
+export let currentDataset = Object.keys(datasets)[0];
 let currentLayer = datasets[currentDataset].layer.addTo(map);
 datasetSelector.value = currentDataset;
-
-// Initialize blank annotation lists
-const annotations = {};
-Object.keys(datasets).forEach(key => {
-    annotations[key] = [];
-});
 
 // Optional overlay layer opacity slider skeleton
 // // ok currently this is also blocked by opaque-response
@@ -107,16 +69,17 @@ map.on("zoomend", () => {
     updateInfoPanel();
 });
 
-map.on("click", function(e) {
-    const label = prompt("Enter label for this location:");
-    if (!label) return;
+setupAnnotation(map);
+//map.on("click", function(e) {
+//    const label = prompt("Enter label for this location:");
+//    if (!label) return;
 
-    // Create marker
-    const marker = L.marker(e.latlng)
-        .bindPopup(label)
-        .addTo(map);
-    console.log({lat: e.latlng.lat, lng: e.latlng.lng, label}); // later send to backend
+//    // Create marker
+//    const marker = L.marker(e.latlng)
+//        .bindPopup(label)
+//        .addTo(map);
+//    console.log({lat: e.latlng.lat, lng: e.latlng.lng, label}); // later send to backend
 
-    // Store marker in current dataset's array
-    annotations[currentDataset].push(marker);
-});
+//    // Store marker in current dataset's array
+//    annotations[currentDataset].push(marker);
+//});
