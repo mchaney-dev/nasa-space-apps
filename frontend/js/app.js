@@ -53,14 +53,23 @@ function setupSelector() {
 async function switchDataset(datasetId) {
     if (!map || !datasets[datasetId]) return;
 
-    // remove old layer
     if (currentLayer) map.removeLayer(currentLayer);
 
-    // create new tile layer using template URL
     const newLayer = createTileLayer(datasetId);
     if (!newLayer) return;
 
     currentLayer = newLayer.addTo(map);
+
+    // Restrict bounds dynamically for this dataset
+    const ds = datasets[datasetId];
+    const bounds = [
+        [ds.bbox[0], ds.bbox[1]],  // [south, west]
+        [ds.bbox[2], ds.bbox[3]]   // [north, east]
+    ];
+    map.setMaxBounds(bounds);
+
+    // Zoom to dataset extent initially (optional)
+    if (!currentLayer) map.fitBounds(bounds);
 
     // load annotations for this dataset
     const labels = await loadAnnotations(datasetId);

@@ -25,6 +25,8 @@ export async function loadDatasets() {
                 name: ds.name,
                 attribution: ds.description || "",
                 tileUrlTemplate: ds.source,
+                bbox: ds.bbox || [-90, -180, 90, 180],
+                maxNativeZoom: ds.maxNativeZoom || 7,
                 layer: null
             };
         });
@@ -40,12 +42,22 @@ export function createTileLayer(datasetId) {
     const ds = datasets[datasetId];
     if (!ds) return null;
 
-    return L.tileLayer(ds.tileUrlTemplate, {
+    const layer = L.tileLayer(ds.tileUrlTemplate, {
         attribution: ds.attribution,
         minZoom: 0,
         maxZoom: 7,
+        maxNativeZoom: ds.maxNativeZoom,
         tileSize: 256,
-        tms: false,
-        crossOriginIsolated: true
+        tms: false
     });
+
+    const bounds = [
+        [ds.bbox[0], ds.bbox[1]],
+        [ds.bbox[2], ds.bbox[3]]
+    ];
+    layer.on('add', () => {
+        map.setMaxBounds(bounds);
+    });
+
+    return layer;
 }
