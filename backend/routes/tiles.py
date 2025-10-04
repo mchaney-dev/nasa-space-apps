@@ -2,7 +2,7 @@ import httpx
 import diskcache
 import asyncio
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 from pathlib import Path
 from datetime import timedelta
 from typing import Optional, cast
@@ -61,9 +61,9 @@ async def get_tile(dataset_id: str, z: int, x: int, y: int):
     if tile_bytes is None:
         raise HTTPException(status_code=404, detail="Tile not found")
 
-    # return as streaming response - cache for 1 day in browser
-    return StreamingResponse(
-        iter([tile_bytes]),
+    # return png tile with cache age of 1 day
+    return Response(
+        content=tile_bytes,
         media_type="image/png",
         headers={"Cache-Control": "max-age=86400"}
     )
