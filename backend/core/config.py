@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DATASETS_DIR = ROOT_DIR / "datasets"
+DATASETS_DIR = ROOT_DIR / "models"
 MANIFEST = DATASETS_DIR / "manifest.json"
 FRONTEND_DIR = ROOT_DIR.parent / "frontend"
 

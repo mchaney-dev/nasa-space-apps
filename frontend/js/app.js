@@ -17,6 +17,9 @@ async function init() {
 
     // initialize the map
     initMap();
+
+    // setup feature search
+    setupFeatureSearch();
 }
 
 function initMap() {
@@ -124,6 +127,57 @@ function updateInfoPanel(datasetId) {
         <h3>${ds.name}</h3>
         <p>${ds.attribution || ds.description || ""}</p>
     `;
+}
+
+function setupFeatureSearch() {
+    const input = document.getElementById("feature-search");
+    const btn = document.getElementById("search-btn");
+
+    btn.addEventListener("click", async () => {
+        const query = input.value.trim();
+        if (!query) return;
+
+        let url = "/features/?";
+        const coordMatch = query.match(/(-?\d+(\.\d+)?)[ ,]+(-?\d+(\.\d+)?)/);
+
+        if (coordMatch) {
+            // If user entered "lat, lon"
+            const lat = parseFloat(coordMatch[1]);
+            const lon = parseFloat(coordMatch[3]);
+            url += `lat=${lat}&lon=${lon}`;
+        } else {
+            // Otherwise treat as name search
+            url += `name=${encodeURIComponent(query)}`;
+        }
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) {
+                console.error("Failed to fetch features:", res.status);
+                return;
+            }
+
+            const features = await res.json();
+            if (features.length === 0) {
+                alert("No features found.");
+                return;
+            }
+
+            // Zoom to the first result
+            const f = features[0];
+            if (f.coordinates && f.coordinates.lat !== undefined && f.coordinates.lon !== undefined) {
+                map.setView([f.coordinates.lat, f.coordinates.lon], 4);
+
+                // Add marker for the feature
+                L.marker([f.coordinates.lat, f.coordinates.lon])
+                    .bindPopup(`<b>${f.name}</b><br>${f.description || ""}`)
+                    .addTo(map)
+                    .openPopup();
+            }
+        } catch (err) {
+            console.error("Error searching features:", err);
+        }
+    });
 }
 
 init();
