@@ -161,13 +161,30 @@ function setupFeatureSearch() {
                 return;
             }
 
-            // Zoom to the first result
+            // Use the first feature from results
             const f = features[0];
             if (f.coordinates && f.coordinates.lat !== undefined && f.coordinates.lon !== undefined) {
-                map.setView([f.coordinates.lat, f.coordinates.lon], 4);
 
-                // Add marker for the feature
-                L.marker([f.coordinates.lat, f.coordinates.lon])
+                // Remove previous search marker
+                if (window.searchMarker) {
+                    map.removeLayer(window.searchMarker);
+                }
+
+                // Ensure the dataset containing this feature is visible
+                if (f.datasetId && datasets[f.datasetId] && datasets[f.datasetId].layer) {
+                    if (!map.hasLayer(datasets[f.datasetId].layer)) {
+                        datasets[f.datasetId].layer.addTo(map);
+                    }
+                }
+
+                // Determine a suitable zoom level (not too far)
+                const zoomLevel = Math.min(map.getMaxZoom() || 7, 6);
+
+                // Zoom to the feature
+                map.setView([f.coordinates.lat, f.coordinates.lon], zoomLevel);
+
+                // Add marker and open popup
+                window.searchMarker = L.marker([f.coordinates.lat, f.coordinates.lon])
                     .bindPopup(`<b>${f.name}</b><br>${f.description || ""}`)
                     .addTo(map)
                     .openPopup();
