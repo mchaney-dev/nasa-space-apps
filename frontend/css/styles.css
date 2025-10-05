@@ -1,11 +1,5 @@
-/* Reset default body margins */
-body {
+html, body, #map {
+    height: 100%;
     margin: 0;
     padding: 0;
-}
-
-/* Full viewport map container */
-#map {
-    width: 100vw;
-    height: 100vh;
 }

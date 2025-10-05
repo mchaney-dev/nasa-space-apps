@@ -25,4 +25,4 @@ app.include_router(tiles.router)
 async def root():
     return RedirectResponse("/index.html")
 
-app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+app.mount("/", StaticFiles(directory=f"{FRONTEND_DIR}/dist", html=True), name="frontend")

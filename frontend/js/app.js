@@ -1,7 +1,10 @@
-// imports
+import L from "leaflet";
+import "leaflet-side-by-side";
 import { datasets, loadDatasets, createTileLayer } from "./datasets.js";
 import { annotations, loadAnnotations } from "./annotations.js";
 
+let sideBySideControl = null;
+let compareLayer = null;
 let map;
 let currentLayer = null;
 
@@ -34,20 +37,23 @@ function initMap() {
 
 function setupSelector() {
     const select = document.getElementById("dataset-selector");
+    const compareSelect = document.getElementById("compare-selector");
 
-    // clear existing options (if any)
     select.innerHTML = "";
+    compareSelect.innerHTML = '<option value="">(None)</option>';
 
-    // add option for each dataset
     Object.values(datasets).forEach(ds => {
         const opt = document.createElement("option");
         opt.value = ds.id;
         opt.textContent = ds.name;
         select.appendChild(opt);
+
+        const opt2 = opt.cloneNode(true);
+        compareSelect.appendChild(opt2);
     });
 
-    // listen for changes
     select.addEventListener("change", e => switchDataset(e.target.value));
+    compareSelect.addEventListener("change", e => setupComparison(e.target.value));
 }
 
 async function switchDataset(datasetId) {
@@ -60,15 +66,15 @@ async function switchDataset(datasetId) {
 
     currentLayer = newLayer.addTo(map);
 
-    // Restrict bounds dynamically for this dataset
+    // restrict bounds dynamically
     const ds = datasets[datasetId];
     const bounds = [
-        [ds.bbox[0], ds.bbox[1]],  // [south, west]
-        [ds.bbox[2], ds.bbox[3]]   // [north, east]
+        [ds.bbox[0], ds.bbox[1]],
+        [ds.bbox[2], ds.bbox[3]]
     ];
     map.setMaxBounds(bounds);
 
-    // Zoom to dataset extent initially (optional)
+    // zoom to dataset extent initially
     if (!currentLayer) map.fitBounds(bounds);
 
     // load annotations for this dataset
@@ -77,6 +83,36 @@ async function switchDataset(datasetId) {
 
     // update info panel
     updateInfoPanel(datasetId);
+}
+
+function setupComparison(compareDatasetId) {
+    if (sideBySideControl) {
+        map.removeControl(sideBySideControl);
+        sideBySideControl = null;
+    }
+    if (compareLayer) {
+        map.removeLayer(compareLayer);
+        compareLayer = null;
+    }
+
+    if (!compareDatasetId || !currentLayer) return;
+
+    const ds = datasets[compareDatasetId];
+    if (!ds) return;
+
+    // clone the layer to allow comparison
+    compareLayer = createTileLayer(compareDatasetId);
+    if (!compareLayer) return;
+
+    compareLayer.addTo(map);
+
+    // set a slightly lower opacity to make the swipe effect visible
+    compareLayer.setOpacity(0.8);
+
+    // attach side-by-side control
+    sideBySideControl = L.control.sideBySide(currentLayer, compareLayer).addTo(map);
+
+    console.log("SideBySide control:", sideBySideControl);
 }
 
 function updateInfoPanel(datasetId) {

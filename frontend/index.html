@@ -18,22 +18,29 @@
         
         <!-- UI Controls -->
         <div id="controls">
+            <!-- dataset selector -->
             <label for="dataset-selector">Dataset: </label>
             <select id="dataset-selector">
                 <!-- populated programmatically -->
             </select>
             <br><br>
+            <!-- opacity slider for overlay -->
             <label for="opacity-slider">Overlay Opacity: </label>
             <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="1">
+            <br><br>
+            <!-- compare selector -->
+            <label for="compare-selector">Compare with: </label>
+            <select id="compare-selector">
+            <option value="">(None)</option>
+            </select>
+            <br><br>
+            <button id="reset-view-btn">Reset View</button>
         </div>
 
         <div id="info-panel">Showing: Mars MOLA | Zoom: 2</div>
         <div id="map"></div>
 
-        <!-- leaflet js -->
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
         <!-- the actual app -->
         <script type="module" src="js/app.js"></script>
-
     </body>
 </html>
