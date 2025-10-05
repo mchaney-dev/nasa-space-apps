@@ -22,6 +22,8 @@ async function init() {
     if (datasetIds.length > 0) {
         switchDataset(datasetIds[0]); // use real key
     }
+    // Ensure Leaflet recalculates container size
+    setTimeout(() => map.invalidateSize(), 100);
 
     setupFeatureSearch();
 }
@@ -34,12 +36,6 @@ function initMap() {
         center: [0, 0],
         zoom: 0
     });
-
-    const datasetIds = Object.keys(datasets);
-    if (datasetIds.length === 0) return;
-
-    const firstDatasetId = datasetIds[0];
-    switchDataset(firstDatasetId);
 }
 
 function setupSelector() {
@@ -123,11 +119,8 @@ function setupComparison(compareDatasetId) {
 
 function updateInfoPanel(datasetId) {
     const info = document.getElementById("info-panel");
-    if (!info) return; // prevents error if element not found
-
     const ds = datasets[datasetId];
-    if (!ds) return;
-
+    if (!info || !ds) return; // safely skip
     info.innerHTML = `
         <h3>${ds.name}</h3>
         <p>${ds.attribution || ds.description || ""}</p>

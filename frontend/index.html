@@ -118,14 +118,19 @@
       </div>
 
       <!-- Layers tab -->
-      <div id="layers" class="tab-content active">
-        <div id="layer-list" class="space-y-3">
-          <!-- populated dynamically -->
-        </div>
-        <button id="reset-view-btn" class="w-full bg-slate-700 hover:bg-slate-600 rounded p-2 mt-3">
-          Reset View
-        </button>
-      </div>
+<div id="layers" class="tab-content active">
+    <label for="dataset-selector" class="block text-sm mb-2">Dataset</label>
+    <select id="dataset-selector" class="w-full bg-slate-800 border border-slate-700 rounded p-1 mb-2">
+        <!-- populated dynamically -->
+    </select>
+
+    <div id="layer-list" class="space-y-3">
+        <!-- populated dynamically -->
+    </div>
+    <button id="reset-view-btn" class="w-full bg-slate-700 hover:bg-slate-600 rounded p-2 mt-3">
+      Reset View
+    </button>
+</div>
 
       <!-- Compare tab -->
       <div id="compare" class="tab-content">
