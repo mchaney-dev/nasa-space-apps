@@ -18,7 +18,17 @@
 			"attribution": "NASA Mars Trek Team",
 			"description": "A global color mosaic of Mars created from MOC imagery.",
 			"bbox": [-90, -180, 90, 180],
-      		"maxNativeZoom": 4
+			"maxNativeZoom": 4
+		},
+		{
+			"id": "moc_color",
+			"name": "MOLA Global Surface Roughness",
+			"type": "raster",
+			"source": "https://trek.nasa.gov/tiles/Mars/EQ/mola_roughness/1.0.0/default/default028mm/{z}/{y}/{x}.png",
+			"attribution": "NASA Mars Trek Team",
+			"description": "A global surface roughness map of Mars from MOLA with colored roughness scale.",
+			"bbox": [-90, -180, 90, 180],
+			"maxNativeZoom": 4
 		}
 	]
 }
