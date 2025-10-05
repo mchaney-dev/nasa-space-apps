@@ -123,7 +123,7 @@ function updateInfoPanel(datasetId) {
     if (!info || !ds) return; // safely skip
     info.innerHTML = `
         <h3>${ds.name}</h3>
-        <p>${ds.attribution || ds.description || ""}</p>
+        <p>${ds.description || ""}</p>
     `;
 }
 
