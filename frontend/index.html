@@ -1,51 +1,179 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Ourple World Viewer</title>
+<head>
+  <meta charset="utf-8" />
+  <title>OmniSat Viewer</title>
 
-        <!-- leaflet css -->
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            crossorigin=""
-        />
-        <!-- external styles -->
-        <link rel="stylesheet" href="css/styles.css">
-    </head>
-    <body>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
 
-        
-        <!-- UI Controls -->
-        <div id="controls">
-            <!-- dataset selector -->
-            <label for="dataset-selector">Dataset: </label>
-            <select id="dataset-selector">
-                <!-- populated programmatically -->
-            </select>
-            <br><br>
-            <!-- opacity slider for overlay -->
-            <label for="opacity-slider">Overlay Opacity: </label>
-            <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="1">
-            <br><br>
-            <!-- compare selector -->
-            <label for="compare-selector">Compare with: </label>
-            <select id="compare-selector">
-            <option value="">(None)</option>
-            </select>
-            <br><br>
-            <!-- Feature search -->
-            <label for="feature-search">Search Feature: </label>
-            <input type="text" id="feature-search" placeholder="Enter name or coordinates">
-            <button id="search-btn">Go</button>
-            <br><br>
-            <button id="reset-view-btn">Reset View</button>
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Main layout: sidebar + map */
+    #app {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      background-color: #0f172a; /* slate-900 */
+    }
+
+    #sidebar {
+      width: 280px;
+      background-color: rgba(15, 23, 42, 0.95);
+      color: white;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+      z-index: 10;
+    }
+
+    #sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    #map {
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+    }
+
+    #toggle-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #1e293b;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      cursor: pointer;
+      z-index: 20;
+      transition: background 0.2s ease;
+    }
+
+    #toggle-btn:hover {
+      background-color: #334155;
+    }
+
+    .tab-btn {
+      width: 33.3%;
+      text-align: center;
+      padding: 0.5rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 1rem;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    #info-panel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(30, 41, 59, 0.8);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      z-index: 15;
+    }
+  </style>
+</head>
+<body class="bg-slate-900">
+
+  <!-- toggle button -->
+  <button id="toggle-btn">☰</button>
+
+  <!-- main container -->
+  <div id="app">
+    <!-- sidebar -->
+    <div id="sidebar">
+      <div class="tabs flex border-b border-slate-700">
+        <div class="tab-btn active" data-tab="layers">Layers</div>
+        <div class="tab-btn" data-tab="compare">Compare</div>
+        <div class="tab-btn" data-tab="search">Search</div>
+      </div>
+
+      <!-- Layers tab -->
+      <div id="layers" class="tab-content active">
+        <div id="layer-list" class="space-y-3">
+          <!-- populated dynamically -->
         </div>
+        <button id="reset-view-btn" class="w-full bg-slate-700 hover:bg-slate-600 rounded p-2 mt-3">
+          Reset View
+        </button>
+      </div>
 
-        <div id="info-panel">Showing: Mars MOLA | Zoom: 2</div>
-        <div id="map"></div>
+      <!-- Compare tab -->
+      <div id="compare" class="tab-content">
+        <label for="compare-selector" class="block text-sm mb-2">Compare With</label>
+        <select id="compare-selector" class="w-full bg-slate-800 border border-slate-700 rounded p-1">
+          <option value="">(None)</option>
+        </select>
+      </div>
 
-        <!-- the actual app -->
-        <script type="module" src="js/app.js"></script>
-    </body>
+      <!-- Search tab -->
+      <div id="search" class="tab-content">
+        <label for="feature-search" class="block text-sm mb-2">Search Feature</label>
+        <input type="text" id="feature-search" placeholder="Enter name or coordinates"
+          class="w-full bg-slate-800 border border-slate-700 rounded p-1 mb-2" />
+        <button id="search-btn" class="w-full bg-sky-600 hover:bg-sky-500 rounded p-2">Go</button>
+      </div>
+    </div>
+
+    <!-- map container -->
+    <div id="map"></div>
+  </div>
+
+  <!-- info panel -->
+  <div id="info-panel">Loading map...</div>
+
+  <!-- JS -->
+  <script type="module" src="js/app.js"></script>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      setTimeout(() => {
+        if (window.map && map.invalidateSize) map.invalidateSize();
+      }, 310);
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
 </html>

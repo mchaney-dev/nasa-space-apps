@@ -3,22 +3,26 @@ import "leaflet-side-by-side";
 import { datasets, loadDatasets, createTileLayer } from "./datasets.js";
 import { annotations, loadAnnotations } from "./annotations.js";
 
+console.log("App.js loaded");
+
 let sideBySideControl = null;
 let compareLayer = null;
 let map;
 let currentLayer = null;
 
 async function init() {
-    // load datasets from backend
-    await loadDatasets();
+    initMap();                  // create map first
+    await loadDatasets();       // load datasets from backend
+    console.log("Datasets loaded:", datasets);
 
-    // initialize selector
-    setupSelector();
+    setupSelector();            // build dropdowns
+    buildLayerPanel();          // build sidebar
 
-    // initialize the map
-    initMap();
+    const datasetIds = Object.keys(datasets);
+    if (datasetIds.length > 0) {
+        switchDataset(datasetIds[0]); // use real key
+    }
 
-    // setup feature search
     setupFeatureSearch();
 }
 
@@ -60,6 +64,7 @@ function setupSelector() {
 }
 
 async function switchDataset(datasetId) {
+    if (!map) console.error("Map not initialized yet!");
     if (!map || !datasets[datasetId]) return;
 
     if (currentLayer) map.removeLayer(currentLayer);
@@ -76,9 +81,7 @@ async function switchDataset(datasetId) {
         [ds.bbox[2], ds.bbox[3]]
     ];
     map.setMaxBounds(bounds);
-
-    // zoom to dataset extent initially
-    if (!currentLayer) map.fitBounds(bounds);
+    map.fitBounds(bounds);
 
     // load annotations for this dataset
     const labels = await loadAnnotations(datasetId);
@@ -120,6 +123,8 @@ function setupComparison(compareDatasetId) {
 
 function updateInfoPanel(datasetId) {
     const info = document.getElementById("info-panel");
+    if (!info) return; // prevents error if element not found
+
     const ds = datasets[datasetId];
     if (!ds) return;
 
@@ -178,6 +183,78 @@ function setupFeatureSearch() {
             console.error("Error searching features:", err);
         }
     });
+}
+
+// --- Dynamic Layer Panel UI ---
+function buildLayerPanel() {
+  const container = document.getElementById("layer-list");
+  container.innerHTML = "";
+
+  Object.values(datasets).forEach(ds => {
+    const card = document.createElement("div");
+    card.className =
+      "bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm";
+
+    card.innerHTML = `
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-semibold text-sky-300">${ds.name}</h3>
+        <label class="flex items-center gap-1">
+          <input type="checkbox" class="toggle-layer accent-sky-500" data-id="${ds.id}" ${ds.id === Object.keys(datasets)[0] ? "checked" : ""}>
+          <span>On</span>
+        </label>
+      </div>
+      <p class="text-slate-400 text-xs mb-2">${ds.description || ""}</p>
+      <label class="block text-xs mb-1">Opacity</label>
+      <input type="range" min="0" max="1" step="0.05" value="1"
+        class="opacity-slider w-full mb-2" data-id="${ds.id}">
+      <button class="focus-btn bg-slate-700 hover:bg-slate-600 w-full rounded p-1 text-xs" data-id="${ds.id}">Focus</button>
+    `;
+
+    container.appendChild(card);
+  });
+
+  attachLayerPanelEvents();
+}
+
+function attachLayerPanelEvents() {
+  document.querySelectorAll(".toggle-layer").forEach(chk => {
+    chk.addEventListener("change", e => {
+      const dsId = e.target.dataset.id;
+      if (e.target.checked) {
+        const layer = createTileLayer(dsId);
+        layer.addTo(map);
+        layer.datasetId = dsId;
+        datasets[dsId].layer = layer;
+      } else {
+        const layer = datasets[dsId].layer;
+        if (layer) {
+          map.removeLayer(layer);
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll(".opacity-slider").forEach(slider => {
+    slider.addEventListener("input", e => {
+      const dsId = e.target.dataset.id;
+      const layer = datasets[dsId].layer;
+      if (layer) layer.setOpacity(parseFloat(e.target.value));
+    });
+  });
+
+  document.querySelectorAll(".focus-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      const dsId = e.target.dataset.id;
+      const ds = datasets[dsId];
+      if (ds && ds.bbox) {
+        const bounds = [
+          [ds.bbox[0], ds.bbox[1]],
+          [ds.bbox[2], ds.bbox[3]]
+        ];
+        map.fitBounds(bounds);
+      }
+    });
+  });
 }
 
 init();

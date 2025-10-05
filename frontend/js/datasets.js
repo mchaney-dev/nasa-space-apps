@@ -20,16 +20,17 @@ export async function loadDatasets() {
         }
 
         data.forEach(ds => {
-            datasets[ds.dataset_id] = {
-                id: ds.dataset_id,
-                name: ds.name,
-                attribution: ds.description || "",
-                tileUrlTemplate: ds.source,
-                bbox: ds.bbox || [-90, -180, 90, 180],
-                maxNativeZoom: ds.maxNativeZoom || 7,
-                layer: null
-            };
-        });
+        const key = ds.dataset_id || ds.name;  // fallback to name if dataset_id missing
+        datasets[key] = {
+            id: key,
+            name: ds.name,
+            attribution: ds.description || "",
+            tileUrlTemplate: ds.source,
+            bbox: ds.bbox || [-90, -180, 90, 180],
+            maxNativeZoom: ds.maxNativeZoom || 7,
+            layer: null
+        };
+    });
 
         return datasets;
     } catch (err) {
@@ -40,7 +41,11 @@ export async function loadDatasets() {
 
 export function createTileLayer(datasetId) {
     const ds = datasets[datasetId];
-    if (!ds) return null;
+    if (!ds) {
+        console.warn("No dataset found for", datasetId);
+        return null;
+    }
+    console.log("Creating tile layer for", datasetId, ds.tileUrlTemplate);
 
     const layer = L.tileLayer(ds.tileUrlTemplate, {
         attribution: ds.attribution,
