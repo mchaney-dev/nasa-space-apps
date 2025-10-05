@@ -24,7 +24,8 @@ export async function loadDatasets() {
         datasets[key] = {
             id: key,
             name: ds.name,
-            attribution: ds.description || "",
+            attribution: ds.attribution || "",
+            description: ds.description || "",
             tileUrlTemplate: ds.source,
             bbox: ds.bbox || [-90, -180, 90, 180],
             maxNativeZoom: ds.maxNativeZoom || 7,

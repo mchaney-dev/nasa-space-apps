@@ -1,5 +1,6 @@
 import L from "leaflet";
 import "leaflet-side-by-side";
+import "leaflet-tilt";
 import { datasets, loadDatasets, createTileLayer } from "./datasets.js";
 import { annotations, loadAnnotations } from "./annotations.js";
 
@@ -24,6 +25,8 @@ async function init() {
     }
     // Ensure Leaflet recalculates container size
     setTimeout(() => map.invalidateSize(), 100);
+
+    setup3DViewToggle();
 
     setupFeatureSearch();
 }
@@ -123,8 +126,25 @@ function updateInfoPanel(datasetId) {
     if (!info || !ds) return; // safely skip
     info.innerHTML = `
         <h3>${ds.name}</h3>
-        <p>${ds.attribution || ds.description || ""}</p>
+        <p>${ds.description || ""}</p>
     `;
+}
+
+function setup3DViewToggle() {
+    const checkbox = document.getElementById("toggle-3d");
+    checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+            // enable tilt
+            map.tilt.enable({
+                heading: 45,   // rotation in degrees
+                pitch: 60,     // tilt angle
+                zoomScale: 1.2 // how zoom is affected by tilt
+            });
+        } else {
+            // disable tilt
+            map.tilt.disable();
+        }
+    });
 }
 
 function setupFeatureSearch() {
