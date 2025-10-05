@@ -21,7 +21,7 @@
 			"maxNativeZoom": 4
 		},
 		{
-			"id": "moc_color",
+			"id": "moc_roughness",
 			"name": "MOLA Global Surface Roughness",
 			"type": "raster",
 			"source": "https://trek.nasa.gov/tiles/Mars/EQ/mola_roughness/1.0.0/default/default028mm/{z}/{y}/{x}.png",
