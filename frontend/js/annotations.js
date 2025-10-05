@@ -1,24 +1,12 @@
-// annotations
-
-// frontend/js/annotations.js
+// annotations.js (stubbed for now)
 export const annotations = {};
 
+// Stub function: just returns an empty array instead of fetching labels
 export async function loadAnnotations(datasetId) {
-    try {
-        const res = await fetch(`/labels/?dataset_id=${datasetId}`);
-        const data = await res.json();
-
-        annotations[datasetId] = data.map(item =>
-            L.marker([item.lat, item.lng]).bindPopup(item.label)
-        );
-        return annotations[datasetId];
-    } catch (err) {
-        console.error(`Failed to load labels for ${datasetId}:`, err);
-        annotations[datasetId] = [];
-        return [];
-    }
+    return [];
 }
 
+// Optional helper for adding markers manually
 export function addAnnotation(datasetId, lat, lng, label) {
     if (!annotations[datasetId]) annotations[datasetId] = [];
     const marker = L.marker([lat, lng]).bindPopup(label);
