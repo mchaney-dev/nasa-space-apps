@@ -183,25 +183,42 @@ function buildLayerPanel() {
   const container = document.getElementById("layer-list");
   container.innerHTML = "";
 
+  const currentDatasetId = Object.keys(datasets).find(
+    id => datasets[id].layer === currentLayer
+  );
+
   Object.values(datasets).forEach(ds => {
     const card = document.createElement("div");
     card.className =
       "bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm";
 
-    card.innerHTML = `
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="font-semibold text-sky-300">${ds.name}</h3>
-        <label class="flex items-center gap-1">
-          <input type="checkbox" class="toggle-layer accent-sky-500" data-id="${ds.id}" ${ds.id === Object.keys(datasets)[0] ? "checked" : ""}>
-          <span>On</span>
-        </label>
-      </div>
-      <p class="text-slate-400 text-xs mb-2">${ds.description || ""}</p>
-      <label class="block text-xs mb-1">Opacity</label>
-      <input type="range" min="0" max="1" step="0.05" value="1"
-        class="opacity-slider w-full mb-2" data-id="${ds.id}">
-      <button class="focus-btn bg-slate-700 hover:bg-slate-600 w-full rounded p-1 text-xs" data-id="${ds.id}">Focus</button>
-    `;
+    if (ds.id === currentDatasetId) {
+      // Only show opacity slider for the base layer
+      card.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-semibold text-sky-300">${ds.name} (Base)</h3>
+        </div>
+        <label class="block text-xs mb-1">Opacity</label>
+        <input type="range" min="0" max="1" step="0.05" value="${ds.layer ? ds.layer.options.opacity || 1 : 1}"
+          class="opacity-slider w-full mb-2" data-id="${ds.id}">
+      `;
+    } else {
+      // Full controls for other layers
+      card.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="font-semibold text-sky-300">${ds.name}</h3>
+          <label class="flex items-center gap-1">
+            <input type="checkbox" class="toggle-layer accent-sky-500" data-id="${ds.id}" ${ds.layer ? "checked" : ""}>
+            <span>On</span>
+          </label>
+        </div>
+        <p class="text-slate-400 text-xs mb-2">${ds.description || ""}</p>
+        <label class="block text-xs mb-1">Opacity</label>
+        <input type="range" min="0" max="1" step="0.05" value="${ds.layer ? ds.layer.options.opacity || 1 : 1}"
+          class="opacity-slider w-full mb-2" data-id="${ds.id}">
+        <button class="focus-btn bg-slate-700 hover:bg-slate-600 w-full rounded p-1 text-xs" data-id="${ds.id}">Focus</button>
+      `;
+    }
 
     container.appendChild(card);
   });
